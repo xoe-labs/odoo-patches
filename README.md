@@ -87,7 +87,7 @@ echo "${payload"} | patch -p1
 
 # Credits & License
 
-Base on stewardship by:
+Based on stewardship by:
  - [@yelizariev](https://github.com/yelizariev) ([IT-Projects LLC](https://it-projects.info))
  - [@blaggacao](https://github.com/blaggacao) ([XOE Solutions](https://xoe.solutions))
 
