@@ -99,3 +99,7 @@ License: [LGPL-3](https://www.gnu.org/licenses/lgpl-3.0.en.html)
 - Integrate with `hub` to fully automate initialization and patch-PRs
 - PR-TEMPLATE -> `hub` - flow
 - Do always try to pull before generating a patch & detect/imply next patch number
+- Travis
+  - Patches apply ceteris paribus cleanly in their order taking the database of last successful general run
+  - Generate a new general run with the latest Odoo Upstream code - also - from time-to-time
+  - Apply patch only with it's declared dependency tree -> Missing dependency
