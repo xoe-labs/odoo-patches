@@ -3,10 +3,10 @@
 
 # Quickstart
 ```
-$ curl -fsSL https://git.io/vprGZ -o /tmp/install.sh
+$ cd ~ && curl -fsSL https://git.io/vprGZ -o /tmp/install.sh
 
 # Always read convenience scripts downloaded from the internet
-$ bash /tmp/install.sh
+$ sudo bash /tmp/install.sh
 ```
 
 # Naming Convention
@@ -92,3 +92,10 @@ Based on stewardship by:
  - [@blaggacao](https://github.com/blaggacao) ([XOE Solutions](https://xoe.solutions))
 
 License: [LGPL-3](https://www.gnu.org/licenses/lgpl-3.0.en.html)
+
+
+# TODOs
+
+- Integrate with `hub` to fully automate initialization and patch-PRs
+- PR-TEMPLATE -> `hub` - flow
+- Do always try to pull before generating a patch & detect/imply next patch number
