@@ -41,6 +41,7 @@ git diff -p --minimal --unified=10 --stat --no-renames --ignore-space-at-eol --i
 ```
 
 **To generate a diff (in practice):**
+_Essentialy, this is what the quick-start script does._
 ```
 cd ~
 git clone git@github.com:xoes/odoo-patches.git
