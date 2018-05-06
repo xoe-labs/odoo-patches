@@ -10,7 +10,9 @@ Base on stewardship by:
 
 For this to work as intended, we rely on the follonwing naming convention:
 
-### Regex
+### Regex in pcre (php) flavor
+
+[Regex101 Playground](https://regex101.com/r/kv21jD/2)
 
 ```regex
 (?'id'\d\d\d\d)-(?:(?'deps'\[(?:\d\d\d\d,)*(?:\d\d\d\d)\])-|)(?'scope'list|of|odoo|modules|please insert the whole list)::(?'desc'.*)\.patch
