@@ -11,7 +11,7 @@ $ bash /tmp/install.sh
 
 # Naming Convention
 
-For this to work as intended, we rely on the follonwing naming convention:
+For this to work as intended, we rely on the following naming convention:
 
 ### Regex in pcre (php) flavor
 
