@@ -1,10 +1,12 @@
-A curated and organized collection of functional odoo patches. ("Good bye [OCB](https://github.com/oca/ocb)")
+**A curated and organized collection of functional odoo patches.**
+("Good bye [OCB](https://github.com/oca/ocb)")
 
+# Quickstart
 ```
-$ curl -fsSL https://raw.githubusercontent.com/xoes/odoo-patches/11.0/install.sh -o /tmp/install-odoo-patches.sh
+$ curl -fsSL https://git.io/vprGZ -o /tmp/install.sh
 
 # Always read convenience scripts downloaded from the internet
-$ bash /tmp/install-odoo-patches.sh
+$ bash /tmp/install.sh
 ```
 
 # Naming Convention
