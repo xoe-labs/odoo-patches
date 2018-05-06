@@ -1,5 +1,12 @@
 A curated and organized collection of functional odoo patches. ("Good bye [OCB](https://github.com/oca/ocb)")
 
+```
+$ curl -fsSL https://raw.githubusercontent.com/xoes/odoo-patches/11.0/install.sh -o /tmp/install-odoo-patches.sh
+
+# Always read convenience scripts downloaded from the internet
+$ bash /tmp/install-odoo-patches.sh
+```
+
 # Naming Convention
 
 For this to work as intended, we rely on the follonwing naming convention:
@@ -9,7 +16,7 @@ For this to work as intended, we rely on the follonwing naming convention:
 [Regex101 Playground](https://regex101.com/r/kv21jD/2)
 
 ```regex
-(?'id'\d\d\d\d)-(?:(?'deps'\[(?:\d\d\d\d,)*(?:\d\d\d\d)\])-|)(?'scope'list|of|odoo|modules|please insert the whole list)::(?'desc'.*)\.patch
+(?'id'\d\d\d\d)-(?:(?'deps'\[(?:\d\d\d\d,)*(?:\d\d\d\d)\])-|)(?'scope'list|of|odoo|modules|please insert the whole list)::(?'desc'[a-zA-Z-]*?)\.patch
 ```
 
 ### Examples
@@ -20,21 +27,60 @@ For this to work as intended, we rely on the follonwing naming convention:
 0004-[0003]-hr_payroll_account::This-might-be-a-sister-patch-which-only-can-be-ab=pplied-if-the-module-will-be-installed.patch
 ```
 
-# Instructions
- ```patch
- This may be some useful description of this patch that
- will be ignored by the diff/patch utility. USE IT!
+# Patch creation
 
- --- a/foo  2002-02-21 23:30:39.942229878 -0800
- +++ b/foo  2002-02-21 23:30:50.442260588 -0800
- @@ -1,7 +1,6 @@
- -The Way that can be told of is not the eternal Way;
- -The name that can be named is not the eternal name.
-  The Nameless is the origin of Heaven and Earth;
- -The Named is the mother of all things.
- +The named is the mother of all things.
- +
- ```
+**To generate a diff (in theory):**
+```
+# Long version
+git diff --patch --minimal -U10 --stat --no-renames --ignore-space-at-eol --ignore-blank-lines --ignore-space-change --ignore-all-space --function-context --ignore-submodules [<commit>] [<path>]
+
+# Short version
+git diff -p --minimal --unified=10 --stat --no-renames --ignore-space-at-eol --ignore-blank-lines -b -w -W --ignore-submodules [<commit>] [<path>]
+```
+
+**To generate a diff (in practice):**
+```
+cd ~
+git clone git@github.com:xoes/odoo-patches.git
+cd odoo-patches
+
+# Do yourselve a favour
+echo "export odoo_patch_folder=$(pwd)/patches" >> ~/.bashrc \
+&& chmod +x $(pwd)/gen-odoo-patch \
+&& sudo ln -s $(pwd)/gen-odoo-patch /usr/local/bin/ \
+&& bash
+
+
+# Then, to generate your patch:
+gen-odoo-patch [<commit>] [<subpath of your workdir>]
+```
+
+**Consider adding some useful description:**
+```patch
+This may be some useful description of this patch that
+will be ignored by the diff/patch utility. USE IT!
+
+--- a/foo  2002-02-21 23:30:39.942229878 -0800
++++ b/foo  2002-02-21 23:30:50.442260588 -0800
+@@ -1,7 +1,6 @@
+-The Way that can be told of is not the eternal Way;
+-The name that can be named is not the eternal name.
+The Nameless is the origin of Heaven and Earth;
+-The Named is the mother of all things.
++The named is the mother of all things.
++
+```
+
+# Patch application
+```
+# Get the patch and try it
+payload="$(curl -sL https://raw.githubusercontent.com/xoes/odoo-patches/11.0/patches/####-module::Description.patch)"
+echo ${payload} | patch -p1 --dry-run
+
+# Happy?
+echo ${payload} | patch -p1
+```
+
 
 # Credits & License
 

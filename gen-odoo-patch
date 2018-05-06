@@ -1,0 +1,40 @@
+#!/bin/bash
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+NC='\033[0m' # No Color
+
+read -p "Patch number ####               : " idd </dev/tty
+read -p "Patch dependencies (csv, ####)  : " deps </dev/tty
+read -p "Patch module, 'odoo' for global : " module </dev/tty
+read -p "Patch description [a-zA-Z-]     : " desc </dev/tty
+
+if [ -n "${deps}" ]; then
+	deps="[${deps}]-"
+fi
+
+filename="${idd}-${deps}${module}::${desc}.patch"
+
+echo -e "\n\t${YELLOW}${filename}${NC}\n"
+
+if !(echo "${filename}" | grep -qP '^(\d\d\d\d)-(?:(\[(?:\d\d\d\d,)*(?:\d\d\d\d)\])-|)(odoo|[a-zA-Z-]*?)::([a-zA-Z-]*?)\.patch$'); then
+echo -e "${RED}You'd better comply with the naming scheme!${NC}\n
+regex: '${GREEN}^(\d\d\d\d)-(?:(\[(?:\d\d\d\d,)*(?:\d\d\d\d)\])-|)(odoo|[a-zA-Z-]*?)::([a-zA-Z-]*?)\.patch\$${NC}'"
+exit 1
+fi
+
+git diff \
+	--patch \
+	--minimal \
+	-U10 \
+	--stat \
+	--no-renames \
+	--ignore-space-at-eol \
+	--ignore-blank-lines \
+	--ignore-space-change \
+	--ignore-all-space \
+	--function-context \
+	--ignore-submodules \
+	"${@}" > ${odoo_patch_folder}/${filename}
+	
