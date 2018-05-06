@@ -1,4 +1,4 @@
-A curated and organized collection of functional odoo patches. ("Good bye OCB")
+A curated and organized collection of functional odoo patches. ("Good bye [OCB](https://github.com/oca/ocb)")
 
 # Naming Convention
 
