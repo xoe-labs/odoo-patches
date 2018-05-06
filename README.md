@@ -15,7 +15,7 @@ For this to work as intended, we rely on the follonwing naming convention:
 
 ### Regex in pcre (php) flavor
 
-[Regex101 Playground](https://regex101.com/r/kv21jD/2)
+[>> Regex101 Playground <<](https://regex101.com/r/kv21jD/2)
 
 ```regex
 (?'id'\d\d\d\d)-(?:(?'deps'\[(?:\d\d\d\d,)*(?:\d\d\d\d)\])-|)(?'scope'list|of|odoo|modules|please insert the whole list)::(?'desc'[a-zA-Z-]*?)\.patch
@@ -26,7 +26,7 @@ For this to work as intended, we rely on the follonwing naming convention:
 0001-odoo::This-should-be-a-really-long-and-comprehensive-naming-of-the-patch-to-save-on-OP-hoops.patch
 0002-[0001]-odoo::This-patch-depends-on-0001-expressed-by-the-[0001]-before-the-module.patch
 0003-hr_payroll::Oh-and-the-odoo-module-represents-a-global-scoped-patch-which-spans-more-than-one-module.patch
-0004-[0003]-hr_payroll_account::This-might-be-a-sister-patch-which-only-can-be-ab=pplied-if-the-module-will-be-installed.patch
+0004-[0003]-hr_payroll_account::This-might-be-a-sister-patch-which-only-can-be-applied-if-the-module-will-be-installed.patch
 ```
 
 # Patch creation
