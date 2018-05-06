@@ -1,10 +1,4 @@
-# odoo-patches
-
-An organized collection of functional odoo patches
-
-Base on stewardship by:
- - @yelizariev (IT Projects LLC)
- - @blaggacao (XOE Solutions)
+A curated and organized collection of functional odoo patches. ("Good bye OCB")
 
 # Naming Convention
 
@@ -26,7 +20,7 @@ For this to work as intended, we rely on the follonwing naming convention:
 0004-[0003]-hr_payroll_account::This-might-be-a-sister-patch-which-only-can-be-ab=pplied-if-the-module-will-be-installed.patch
 ```
 
-### Instructions
+# Instructions
  ```patch
  This may be some useful description of this patch that
  will be ignored by the diff/patch utility. USE IT!
@@ -41,3 +35,11 @@ For this to work as intended, we rely on the follonwing naming convention:
  +The named is the mother of all things.
  +
  ```
+
+# Credits & License
+
+Base on stewardship by:
+ - [@yelizariev](https://github.com/yelizariev) ([IT-Projects LLC](https://it-projects.info))
+ - [@blaggacao](https://github.com/blaggacao) ([XOE Solutions](https://xoe.solutions))
+
+License: [LGPL-3](https://www.gnu.org/licenses/lgpl-3.0.en.html)
