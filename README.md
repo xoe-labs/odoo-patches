@@ -47,7 +47,7 @@ cd ~
 git clone git@github.com:xoes/odoo-patches.git
 cd odoo-patches
 
-# Do yourselve a favour
+# Do yourself a favour
 echo "export odoo_patch_folder=$(pwd)/patches" >> ~/.bashrc \
 && chmod +x $(pwd)/gen-odoo-patch \
 && sudo ln -s $(pwd)/gen-odoo-patch /usr/local/bin/ \
@@ -78,10 +78,10 @@ The Nameless is the origin of Heaven and Earth;
 ```
 # Get the patch and try it
 payload="$(curl -sL https://raw.githubusercontent.com/xoes/odoo-patches/11.0/patches/####-module::Description.patch)"
-echo ${payload} | patch -p1 --dry-run
+echo "${payload}" | patch -p1 --dry-run
 
 # Happy?
-echo ${payload} | patch -p1
+echo "${payload"} | patch -p1
 ```
 
 
