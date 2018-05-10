@@ -27,14 +27,13 @@ fi
 git diff \
 	--patch \
 	--minimal \
-	-U10 \
+	--patience \
 	--stat \
 	--no-renames \
 	--ignore-space-at-eol \
 	--ignore-blank-lines \
 	--ignore-space-change \
 	--ignore-all-space \
-	--function-context \
 	--ignore-submodules \
 	"${@}" > ${odoo_patch_folder}/${filename}
 	

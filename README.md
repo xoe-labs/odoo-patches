@@ -32,12 +32,14 @@ For this to work as intended, we rely on the following naming convention:
 # Patch creation
 
 **To generate a diff (in theory):**
+
+https://wiki.postgresql.org/wiki/Creating_Clean_Patches
 ```
 # Long version
-git diff --patch --minimal -U10 --stat --no-renames --ignore-space-at-eol --ignore-blank-lines --ignore-space-change --ignore-all-space --function-context --ignore-submodules [<commit>] [<path>]
+git diff --patch --minimal --stat --no-renames --ignore-space-at-eol --ignore-blank-lines --ignore-space-change --ignore-all-space --ignore-submodules [<commit>] [<path>]
 
 # Short version
-git diff -p --minimal --unified=10 --stat --no-renames --ignore-space-at-eol --ignore-blank-lines -b -w -W --ignore-submodules [<commit>] [<path>]
+git diff -p --minimal --stat --no-renames --ignore-space-at-eol --ignore-blank-lines -b -w --ignore-submodules [<commit>] [<path>]
 ```
 
 **To generate a diff (in practice):**
