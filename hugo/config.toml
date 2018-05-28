@@ -1,0 +1,115 @@
+baseURL = "https://xoe-labs.github.io/odoo-patches/"
+languageCode = "en-us"
+title = "Odoo-Patches"
+theme = "elate"
+
+[params]
+  
+  # custom_css = ["css/custom1.css", "css/custom2.css"]
+
+  # Meta
+  description = "A well structured list of odoo patches."
+  # Navigation
+  [params.navigation]
+    brand = "Odoo-Patches"
+    status = "alpha"
+
+    # You can add custom links before or after the default links
+    # Assign a weight to define the order
+    
+    # prepended links
+    # [[menu.prepend]]
+    #  url = "http://gohugo.io/"
+    #  name = "External link"
+    #  weight = 10
+
+    # postpended links
+    #[[menu.postpend]]
+    #  url = "http://gohugo.io"
+    #  name = "External link"
+    #  weight = 10
+  
+  # Hero section
+  [params.hero]
+    title = "![Odoo-Patches](images/Odoo-Patches-mixed.svg)"
+    subtitle = '''
+Supercharge your <a href="https://odoo.com/" target="_blank">Odoo</a> or <a href="https://flectrahq.com/" target="_blank">Flectra</a> instances with our list of curated patches, which we use internally at XOE.
+[![GitHub stars](https://img.shields.io/github/stars/xoe-labs/odoo-patches.svg?longCache=true&style=flat-square&logo=github&label=Stars)](https://github.com/xoe-labs/odoo-patches)
+[![By XOE Labs](https://img.shields.io/badge/by-XOE Labs-F26524.svg?longCache=true&style=flat-square)](https://xoe.solutions)
+'''
+
+  # Intro section
+  # Available icons: http://simplelineicons.com/
+  [params.intro]
+
+  [[params.intro.item]]
+    title = "Still in Inception"
+    description = "We are in the process of porting all private commits to a publicly available patch diff format."
+    url = "#f5co-contact"
+    button = "Get In Touch"
+    icon = "icon-bulb"
+
+  # Services section
+  [params.services]
+    enable = true
+    title = "Features"
+    description = "Odoo-Patches are constantly validated for applying cleanly against upstream changes by our CI/CD."
+
+    [[params.services.item]]
+      title = "Minimal"
+      description = "Every patch is a minimal and well defined change set crafted to apply as cleanly and universally as possible."
+      icon = "icon-mustache"
+
+    [[params.services.item]]
+      title = "Dependencies"
+      description = "Dependencies build into the naming scheme for the flexibility to choose only the patches you need."
+      icon = "icon-link"
+
+    [[params.services.item]]
+      title = "Guarantees"
+      description = "A green branch means that all patches apply cleanly at this given point in time."
+      icon = "icon-shield"
+
+    [[params.services.item]]
+      title = "Transparent"
+      description = "Natural ordering and structure to change sets. It's easy to browse this repository."
+      icon = "icon-direction"
+
+    # About section
+  [params.about]
+    enable = true
+    title = "Other projects"
+    description = "We are commited to excellence in community-driven development at XOE.<br /> Here is a list of some of our most useful tools"
+
+    [[params.about.item]]
+      name = "Dockery-Odoo"
+      position = "Your efficient development workflow companion"
+      description = ""
+      img = "Dockery-Odoo-color.svg"
+      alt = "Dockery-Odoo"
+      social = [
+        ["icon-globe", "https://xoe-labs.github.io/dockery-odoo"],
+        ["icon-github", "https://github.com/xoe-labs/dockery-odoo"]
+      ]
+
+    [[params.about.item]]
+      name = "Dockery-Odoo Scaffold"
+      position = "Bootstrap your project with useful template files."
+      description = ""
+      img = "Dockery-Odoo-Scaffold-color.svg"
+      alt = "Dockery-Odoo Scaffold"
+      social = [
+        ["icon-globe", "https://xoe-labs.github.io/dockery-odoo-scaffold"],
+        ["icon-home", "https://github.com/xoe-labs/dockery-odoo-scaffold"]
+      ]
+
+    [[params.about.item]]
+      name = "Odoo Operator"
+      position = "Deploy Odoo/Flectra instances reliably at scale with k8s"
+      description = ""
+      img = "Odoo-Operator-color.svg"
+      alt = "Odoo Operator"
+      social = [
+        ["icon-globe", "https://xoe-labs.github.io/odoo-operator"],
+        ["icon-github", "https://github.com/xoe-labs/odoo-operator"]
+      ]
