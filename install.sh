@@ -1,5 +1,5 @@
 #!/bin/bash
-git clone git@github.com:xoes/odoo-patches.git
+git clone git@github.com:xoe-labs/odoo-patches.git
 cd odoo-patches
 
 # Do yourselve a favour
