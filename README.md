@@ -15,18 +15,23 @@ For this to work as intended, we rely on the following naming convention:
 
 ### Regex in pcre (php) flavor
 
-[>> Regex101 Playground <<](https://regex101.com/r/kv21jD/2)
+[>> Regex101 Playground <<](https://regex101.com/r/W8ETh3/3)
 
 ```regex
-(?'id'\d\d\d\d)-(?:(?'deps'\[(?:\d\d\d\d,)*(?:\d\d\d\d)\])-|)(?'scope'list|of|odoo|modules|please insert the whole list)::(?'desc'[a-zA-Z-]*?)\.patch
+^((?:\d|F)\d\d\d)-(?:(\[(?:(?:|[a-zA-Z_]*?:)(?:\d|F)\d\d\d,)*(?:(?:|[a-zA-Z_]*?:)(?:\d|F)\d\d\d)\])|)::([a-zA-Z-]*?)\.patch$
 ```
+
+### Explanation
+
+- The first token is made of 4 digits is a consecutive number within a given module scope or of a capital letter "F" followed by 3 digits within a global scope. "F" stands for "federated" and represents patches that span multiple modules.
+- Dependencies are expressed by an optional `-[...]` after the first token. Normally, a dependency is indentified by it's first token (eg. `0001` or `F001`). If there is a dependency which reaches out to a patch in another module, prepend it with the module name: `[module_name/0001]` or `[module_name/F001]`
 
 ### Examples
 ```bash
-0001-odoo::This-should-be-a-really-long-and-comprehensive-naming-of-the-patch-to-save-on-OP-hoops.patch
-0002-[0001]-odoo::This-patch-depends-on-0001-expressed-by-the-[0001]-before-the-module.patch
-0003-hr_payroll::Oh-and-the-odoo-module-represents-a-global-scoped-patch-which-spans-more-than-one-module.patch
-0004-[0003]-hr_payroll_account::This-might-be-a-sister-patch-which-only-can-be-applied-if-the-module-will-be-installed.patch
+0001::This-should-be-a-really-long-and-comprehensive-naming-of-the-patch-to-save-on-OP-hoops.patch
+0002-[0001]::This-patch-depends-on-0001-expressed-by-the-[0001]-before-the-module.patch
+0003::Oh-and-the-odoo-module-represents-a-global-scoped-patch-which-spans-more-than-one-module.patch
+0004-[account:0003]::This-might-be-a-sister-patch-which-only-can-be-applied-if-the-module-will-be-installed.patch
 ```
 
 # Patch creation
@@ -79,7 +84,7 @@ The Nameless is the origin of Heaven and Earth;
 # Patch application
 ```
 # Get the patch and try it
-payload="$(curl -sL https://raw.githubusercontent.com/xoes/odoo-patches/11.0/patches/####-module::Description.patch)"
+payload="$(curl -sL https://raw.githubusercontent.com/xoes/odoo-patches/11.0/patches/module_name/####::Description.patch)"
 echo "${payload}" | patch -p1 --dry-run
 
 # Happy?
