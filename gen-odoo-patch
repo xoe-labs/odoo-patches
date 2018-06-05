@@ -10,10 +10,10 @@ read -p "Patch dependencies (csv, ####)  : " deps </dev/tty
 read -p "Patch description [a-zA-Z-]     : " desc </dev/tty
 
 if [ -n "${deps}" ]; then
-	deps="[${deps}]"
+	deps="-[${deps}]"
 fi
 
-filename="${idd}-${deps}::${desc}.patch"
+filename="${idd}${deps}::${desc}.patch"
 
 echo -e "\n\t${YELLOW}${filename}${NC}\n"
 
