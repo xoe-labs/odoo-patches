@@ -3,7 +3,7 @@
 
 # Quickstart
 ```
-$ cd ~ && curl -fsSL https://git.io/vprGZ -o /tmp/install.sh
+$ cd ~ && curl -fsSL https://git.io/vhRLh -o /tmp/install.sh
 
 # Always read convenience scripts downloaded from the internet
 $ sudo bash /tmp/install.sh
