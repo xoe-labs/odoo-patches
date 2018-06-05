@@ -1,0 +1,26 @@
+================================================================================
+
+When I'm done with an opportunity, it might regularily happen
+that the client does give me some late feedback on this opportunity
+via mail. When cleaning up my sales pipeline I want to be able to organize this
+feedback into the right history even if the oportunity is already closed.
+
+================================================================================
+
+ addons/crm/wizard/crm_merge_opportunities.py | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/addons/crm/wizard/crm_merge_opportunities.py b/addons/crm/wizard/crm_merge_opportunities.py
+index c0e2a6cc7ba..38de0880be8 100644
+--- a/addons/crm/wizard/crm_merge_opportunities.py
++++ b/addons/crm/wizard/crm_merge_opportunities.py
+@@ -27,8 +27,7 @@ class MergeOpportunity(models.TransientModel):
+ 
+         if record_ids:
+             if 'opportunity_ids' in fields:
+-                opp_ids = self.env['crm.lead'].browse(record_ids).filtered(lambda opp: opp.probability < 100).ids
+-                result['opportunity_ids'] = opp_ids
++                result['opportunity_ids'] = record_ids
+ 
+         return result
+ 
