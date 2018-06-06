@@ -7,7 +7,7 @@ NC='\033[0m' # No Color
 
 read -p "Patch number ####               : " idd </dev/tty
 read -p "Patch dependencies (csv, ####)  : " deps </dev/tty
-read -p "Patch description [a-zA-Z-]     : " desc </dev/tty
+read -p "Patch description [a-zA-Z-_]     : " desc </dev/tty
 
 if [ -n "${deps}" ]; then
 	deps="-[${deps}]"
@@ -17,7 +17,7 @@ filename="${idd}${deps}::${desc}.patch"
 
 echo -e "\n\t${YELLOW}${filename}${NC}\n"
 
-if !(echo "${filename}" | grep -qP '^((?:\d|F)\d\d\d)-(?:(\[(?:(?:|[a-zA-Z_]*?:)(?:\d|F)\d\d\d,)*(?:(?:|[a-zA-Z_]*?:)(?:\d|F)\d\d\d)\])|)::([a-zA-Z-]*?)\.patch$'); then
+if !(echo "${filename}" | grep -qP '^((?:\d|F)\d\d\d)-(?:(\[(?:(?:|[a-zA-Z_]*?:)(?:\d|F)\d\d\d,)*(?:(?:|[a-zA-Z_]*?:)(?:\d|F)\d\d\d)\])|)::([a-zA-Z-_]*?)\.patch$'); then
 echo -e "${RED}You'd better comply with the naming scheme!${NC}\n
 regex: '${GREEN}^((?:\d|F)\d\d\d)-(?:(\[(?:(?:|[a-zA-Z_]*?:)(?:\d|F)\d\d\d,)*(?:(?:|[a-zA-Z_]*?:)(?:\d|F)\d\d\d)\])|)::([a-zA-Z-]*?)\.patch\$${NC}'"
 exit 1
