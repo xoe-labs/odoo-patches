@@ -3,10 +3,15 @@
 
 # Quickstart
 ```
-$ cd ~ && curl -fsSL https://git.io/vhRLh -o /tmp/install.sh
+$ curl -fsSL https://git.io/vhRLh -o /tmp/install.sh
+
+$ cd ~  # or to wherever you want this repo to live
 
 # Always read convenience scripts downloaded from the internet
-$ sudo bash /tmp/install.sh
+$ cat /tmp/install.sh
+
+# All good?
+$ bash /tmp/install.sh
 ```
 
 # Naming Convention
