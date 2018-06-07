@@ -20,10 +20,10 @@ For this to work as intended, we rely on the following naming convention:
 
 ### Regex in pcre (php) flavor
 
-[>> Regex101 Playground <<](https://regex101.com/r/W8ETh3/4)
+[>> Regex101 Playground <<](https://regex101.com/r/W8ETh3/5)
 
 ```regex
-^((?:\d|F)\d\d\d)(?:(-\[(?:(?:|[a-zA-Z_]*?:)(?:\d|F)\d\d\d,)*(?:(?:|[a-zA-Z_]*?:)(?:\d|F)\d\d\d)\])|)::([a-zA-Z-]*?)\.patch$
+^((?:\d|F)\d\d\d)(?:(-\[(?:(?:|[a-zA-Z_]*?:)(?:\d|F)\d\d\d,)*(?:(?:|[a-zA-Z_]*?:)(?:\d|F)\d\d\d)\])|)::([a-zA-Z-_]*?)\.patch$
 ```
 
 ### Explanation
