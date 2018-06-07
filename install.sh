@@ -2,10 +2,13 @@
 git clone https://github.com/xoe-labs/odoo-patches.git
 cd odoo-patches
 
-# Do yourselve a favour
+# Persist patch folder in environment variable
 echo "export odoo_patch_folder=$(pwd)/patches" >> ~/.bashrc \
+# Ensure it's executable
 && chmod +x $(pwd)/gen-odoo-patch \
-&& ln -s $(pwd)/gen-odoo-patch /usr/local/bin/ \
+# Copy script into path
+&& cp $(pwd)/gen-odoo-patch /usr/local/bin/ \
+# Load newly persisted environment variable
 && bash
 
 
