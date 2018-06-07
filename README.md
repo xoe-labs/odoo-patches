@@ -31,26 +31,12 @@ For this to work as intended, we rely on the following naming convention:
 - The first token is made of 4 digits is a consecutive number within a given module scope or of a capital letter "F" followed by 3 digits within a global scope. "F" stands for "federated" and represents patches that span multiple modules.
 - Dependencies are expressed by an optional `-[...]` after the first token. Normally, a dependency is indentified by it's first token (eg. `0001` or `F001`). If there is a dependency which reaches out to a patch in another module, prepend it with the module name: `[module_name/0001]` or `[module_name/F001]`
 
-### Examples
-```bash
-0001::This-should-be-a-really-long-and-comprehensive-naming-of-the-patch-to-save-on-OP-hoops.patch
-0002-[0001]::This-patch-depends-on-0001-expressed-by-the-[0001]-before-the-module.patch
-0003::Oh-and-the-odoo-module-represents-a-global-scoped-patch-which-spans-more-than-one-module.patch
-0004-[account:0003]::This-might-be-a-sister-patch-which-only-can-be-applied-if-the-module-will-be-installed.patch
-```
-
 # Patch creation
 
 **To generate a diff (in theory):**
 
 https://wiki.postgresql.org/wiki/Creating_Clean_Patches
-```
-# Long version
-git diff --patch --minimal --stat --no-renames --ignore-space-at-eol --ignore-blank-lines --ignore-space-change --ignore-all-space --ignore-submodules [<commit>] [<path>]
-
-# Short version
-git diff -p --minimal --stat --no-renames --ignore-space-at-eol --ignore-blank-lines -b -w --ignore-submodules [<commit>] [<path>]
-```
+Just have a look at the gen-odoo-path script.
 
 **To generate a diff (in practice):**
 _Essentialy, this is what the quick-start script does._
@@ -64,8 +50,9 @@ echo "export odoo_patch_folder=$(pwd)/patches" >> ~/.bashrc \
 && chmod +x $(pwd)/gen-odoo-patch \
 && sudo ln -s $(pwd)/gen-odoo-patch /usr/local/bin/ \
 && bash
+```
 
-
+```
 # Then, to generate your patch:
 gen-odoo-patch [<commit>] [<subpath of your workdir>]
 ```
