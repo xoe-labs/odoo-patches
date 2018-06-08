@@ -3,7 +3,7 @@
 
 # Quickstart
 ```
-$ curl -fsSL https://git.io/vhRLh -o /tmp/install.sh
+$ curl -fsSL https://git.io/vhzBk -o /tmp/install.sh
 
 $ cd ~  # or to wherever you want this repo to live
 
@@ -48,10 +48,11 @@ cd odoo-patches
 # Do yourself a favour
 echo "export odoo_patch_folder=$(pwd)/patches" >> ~/.bashrc \
 && chmod +x $(pwd)/gen-odoo-patch \
-&& sudo ln -s $(pwd)/gen-odoo-patch /usr/local/bin/ \
+&& cp $(pwd)/gen-odoo-patch /usr/local/bin/ \
 && bash
 ```
 
+Check out the version branch you want to submit your patch to and:
 ```
 # Then, to generate your patch:
 gen-odoo-patch [<commit>] [<subpath of your workdir>]
