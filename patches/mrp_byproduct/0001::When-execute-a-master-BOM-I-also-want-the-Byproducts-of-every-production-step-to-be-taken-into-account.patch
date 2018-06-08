@@ -1,0 +1,18 @@
+ addons/mrp_byproduct/models/mrp_production.py | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/addons/mrp_byproduct/models/mrp_production.py b/addons/mrp_byproduct/models/mrp_production.py
+index c60c67ab4f0..c20f4f43670 100644
+--- a/addons/mrp_byproduct/models/mrp_production.py
++++ b/addons/mrp_byproduct/models/mrp_production.py
+@@ -39,6 +39,9 @@ class MrpProduction(models.Model):
+         """
+         res = super(MrpProduction, self)._generate_moves()
+         for production in self.filtered(lambda production: production.bom_id):
+-            for sub_product in production.bom_id.sub_products:
++            factor = production.product_uom_id._compute_quantity(production.product_qty, production.bom_id.product_uom_id) / production.bom_id.product_qty
++            boms, lines = production.bom_id.explode(production.product_id, factor, picking_type=production.bom_id.picking_type_id)
++            for (bom, bom_data) in boms:
++                for sub_product in bom.sub_products:
+                     production._create_byproduct_move(sub_product)
+         return res
