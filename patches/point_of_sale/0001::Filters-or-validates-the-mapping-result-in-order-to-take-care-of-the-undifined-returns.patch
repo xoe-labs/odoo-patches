@@ -1,0 +1,25 @@
+ addons/point_of_sale/static/src/js/models.js | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/addons/point_of_sale/static/src/js/models.js b/addons/point_of_sale/static/src/js/models.js
+index 23d60cba374..ecfed9d8618 100644
+--- a/addons/point_of_sale/static/src/js/models.js
++++ b/addons/point_of_sale/static/src/js/models.js
+@@ -1575,7 +1575,7 @@ exports.Orderline = Backbone.Model.extend({
+                 return t.id === el;
+             }));
+         });
+-        product_taxes = _.map(product_taxes, this._map_tax_fiscal_position.bind(this));
++        product_taxes = _.map(product_taxes, this._map_tax_fiscal_position.bind(this)).filter(function(x){return x != undefined});
+ 
+         var all_taxes = this.compute_all(product_taxes, price_unit, this.get_quantity(), this.pos.currency.rounding);
+         _(all_taxes.taxes).each(function(tax) {
+@@ -2071,7 +2071,7 @@ exports.Order = Backbone.Model.extend({
+             var mapped_included_taxes = [];
+             _(taxes).each(function(tax) {
+                 var line_tax = line._map_tax_fiscal_position(tax);
+-                if(tax.price_include && tax.id != line_tax.id){
++                if(line_tax && tax.price_include && tax.id != line_tax.id){
+ 
+                     mapped_included_taxes.push(tax);
+                 }
