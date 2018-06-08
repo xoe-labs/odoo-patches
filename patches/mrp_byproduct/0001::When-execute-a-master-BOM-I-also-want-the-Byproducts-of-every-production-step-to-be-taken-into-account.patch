@@ -1,3 +1,28 @@
+=========================================================================================
+
+As a user of multilevel BOMs, I want to define inidividual compartimentalized
+BOMs, for example as production steps in a multi step production configuration.
+Each step, I define in it's own little BOM. Some steps might produce waste
+which as a matter of control, I want to measure, in other cases, is valuable
+input for other production steps.
+    
+Therefore, when I execute a master BOM, I also want the Byproducts of every
+production step to be taken into account.
+    
+In the above mentioned use case, they are strictly cumulative, as every individual
+subprocess are generating waste products independently.
+    
+If I where to compone a master BOM aut of configurable parts, which do not represent
+individual production processes, and have a waste product on the overall process,
+I then would probably prefer assigning sub products on the master BOM.
+    
+Another use case, is a FORMULA, which can result in different output presentations.
+In this case, the formula includes the wase product, but the respective USE CASE BOM
+would define actual quantities and consumption. For obvious reasons, I want to be able
+to manage the wast on the formula level. 
+
+=========================================================================================
+
  addons/mrp_byproduct/models/mrp_production.py | 5 ++++-
  1 file changed, 4 insertions(+), 1 deletion(-)
 
