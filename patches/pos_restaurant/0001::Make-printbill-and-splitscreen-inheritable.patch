@@ -1,0 +1,33 @@
+==================================================================================
+
+Make printbill and splitscreen inheritable
+
+==================================================================================
+
+ addons/pos_restaurant/static/src/js/printbill.js | 2 ++
+ addons/pos_restaurant/static/src/js/splitbill.js | 2 ++
+ 2 files changed, 4 insertions(+)
+
+diff --git a/addons/pos_restaurant/static/src/js/printbill.js b/addons/pos_restaurant/static/src/js/printbill.js
+index 578fd250403..8148b996929 100644
+--- a/addons/pos_restaurant/static/src/js/printbill.js
++++ b/addons/pos_restaurant/static/src/js/printbill.js
+@@ -56,4 +56,6 @@ screens.define_action_button({
+     },
+ });
+ 
++return BillScreenWidget;
++
+ });
+diff --git a/addons/pos_restaurant/static/src/js/splitbill.js b/addons/pos_restaurant/static/src/js/splitbill.js
+index cce3dcbe490..2b38f634be7 100644
+--- a/addons/pos_restaurant/static/src/js/splitbill.js
++++ b/addons/pos_restaurant/static/src/js/splitbill.js
+@@ -193,5 +193,7 @@ screens.define_action_button({
+     },
+ });
+ 
++return SplitbillScreenWidget;
++
+ });
+ 
