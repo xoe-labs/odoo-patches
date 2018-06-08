@@ -1,3 +1,13 @@
+================================================================================
+
+This commit filters or validates the mapping result in order to take care of the
+undifined returns. As it is construed as a mapping function, we cannot take care
+within the function itself but must handle it in downstream code.
+
+Alternatively a wrapper could be made to encapuslate this safety check as well.
+
+================================================================================
+
  addons/point_of_sale/static/src/js/models.js | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
