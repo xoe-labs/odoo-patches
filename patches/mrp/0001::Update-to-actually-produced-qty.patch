@@ -1,0 +1,26 @@
+================================================================================
+
+In MRP, when I produced less than what was planned and then wanted to update
+the actual quantity via the update button in order to synchronice the whole MO
+and to get it out of a kind of pending state, where I cannot mark it as done,
+a traceback arrose beccause original quanitity would result in 0, which later
+is used as a denominator in a fraction. Hence a traceback.
+
+================================================================================
+
+ addons/mrp/models/mrp_production.py | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/addons/mrp/models/mrp_production.py b/addons/mrp/models/mrp_production.py
+index 162e83b015f..e9702a877b4 100644
+--- a/addons/mrp/models/mrp_production.py
++++ b/addons/mrp/models/mrp_production.py
+@@ -339,6 +339,8 @@ class MrpProduction(models.Model):
+         else:
+             source_location = self.location_src_id
+         original_quantity = self.product_qty - self.qty_produced
++        if original_quantity == 0:
++            return self.env['stock.move']
+         data = {
+             'sequence': bom_line.sequence,
+             'name': self.name,
