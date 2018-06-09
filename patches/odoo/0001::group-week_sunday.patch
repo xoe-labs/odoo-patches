@@ -1,0 +1,117 @@
+Adds support grouping by weeks starting with Sunday
+
+See https://github.com/odoo/odoo/pull/25086
+
+ odoo/addons/test_read_group/tests/__init__.py      |  1 +
+ .../test_read_group/tests/test_week_sunday.py      | 45 ++++++++++++++++++++++
+ odoo/models.py                                     | 16 ++++++++
+ 3 files changed, 62 insertions(+)
+
+diff --git a/odoo/addons/test_read_group/tests/__init__.py b/odoo/addons/test_read_group/tests/__init__.py
+index aef16fc..4e57df6 100644
+--- a/odoo/addons/test_read_group/tests/__init__.py
++++ b/odoo/addons/test_read_group/tests/__init__.py
+@@ -1,4 +1,5 @@
+ # -*- coding: utf-8 -*-
++from . import test_week_sunday
+ from . import test_empty
+ from . import test_group_expand
+ from . import test_group_operator
+diff --git a/odoo/addons/test_read_group/tests/test_week_sunday.py b/odoo/addons/test_read_group/tests/test_week_sunday.py
+new file mode 100644
+index 0000000..106141e
+--- /dev/null
++++ b/odoo/addons/test_read_group/tests/test_week_sunday.py
+@@ -0,0 +1,45 @@
++# -*- coding: utf-8 -*-
++from odoo.tests import common
++
++
++class TestWeekSunday(common.TransactionCase):
++    """ Test grouping :week_sunday """
++    def setUp(self):
++        super(TestWeekSunday, self).setUp()
++        self.Model = self.env['test_read_group.on_date']
++
++    def test_week_groupings(self):
++        self.Model.create({'date': '2018-06-02', 'value': 1})  # Sat, 22d week
++        self.Model.create({'date': '2018-06-03', 'value': 20})  # Sun, 22d or 23d week depending on week start
++        self.Model.create({'date': '2018-06-04', 'value': 300})  # Mon, 23d week
++
++        self.assertSequenceEqual.__self__.maxDiff = None
++
++
++        gb = self.Model.read_group([], ['date', 'value'], ['date:week'], lazy=False)
++
++        self.assertSequenceEqual(sorted(gb, key=lambda r: r['date:week'] or ''), [{
++            '__count': 2,
++            '__domain': ['&', ('date', '>=', '2018-05-28'), ('date', '<', '2018-06-04')],
++            'date:week': 'W22 2018',
++            'value': 21,
++        }, {
++            '__count': 1,
++            '__domain': ['&', ('date', '>=', '2018-06-04'), ('date', '<', '2018-06-11')],
++            'date:week': 'W23 2018',
++            'value': 300,
++        }])
++
++        gb = self.Model.read_group([], ['date', 'value'], ['date:week_sunday'], lazy=False)
++
++        self.assertSequenceEqual(sorted(gb, key=lambda r: r['date:week_sunday'] or ''), [{
++            '__count': 1,
++            '__domain': ['&', ('date', '>=', '2018-05-27'), ('date', '<', '2018-06-03')],
++            'date:week_sunday': 'W22(s) 2018',
++            'value': 1,
++        }, {
++            '__count': 2,
++            '__domain': ['&', ('date', '>=', '2018-06-03'), ('date', '<', '2018-06-10')],
++            'date:week_sunday': 'W23(s) 2018',
++            'value': 320,
++        }])
+diff --git a/odoo/models.py b/odoo/models.py
+index 1716946..e093b71 100644
+--- a/odoo/models.py
++++ b/odoo/models.py
+@@ -1775,6 +1775,7 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
+                 'hour': 'hh:00 dd MMM',
+                 'day': 'dd MMM yyyy', # yyyy = normal year
+                 'week': "'W'w YYYY",  # w YYYY = ISO week-year
++                'week_sunday': "'W'w'(s)' YYYY",  # w YYYY = ISO week-year
+                 'month': 'MMMM yyyy',
+                 'quarter': 'QQQ yyyy',
+                 'year': 'yyyy',
+@@ -1783,12 +1784,23 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
+                 'hour': dateutil.relativedelta.relativedelta(hours=1),
+                 'day': dateutil.relativedelta.relativedelta(days=1),
+                 'week': datetime.timedelta(days=7),
++                'week_sunday': datetime.timedelta(days=7),
+                 'month': dateutil.relativedelta.relativedelta(months=1),
+                 'quarter': dateutil.relativedelta.relativedelta(months=3),
+                 'year': dateutil.relativedelta.relativedelta(years=1)
+             }
+             if tz_convert:
+                 qualified_field = "timezone('%s', timezone('UTC',%s))" % (self._context.get('tz', 'UTC'), qualified_field)
++            if gb_function == 'week_sunday':
++                # postgres's date_trunc supports only weeks starting with Monday
++                # So, make this hack to support weeks starting with Sunday
++                if field_type == 'date':
++                    # interger must be used to don't convert DATE to TIMESTAMP
++                    interval_day = "integer '1'"
++                else:
++                    interval_day = "interval '1 day'"
++                qualified_field = "date_trunc('week', %s  + %s)" % (qualified_field, interval_day)
++            else:
+                 qualified_field = "date_trunc('%s', %s)" % (gb_function or 'month', qualified_field)
+         if field_type == 'boolean':
+             qualified_field = "coalesce(%s,false)" % qualified_field
+@@ -1843,6 +1855,10 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
+                 if ftype == 'many2one':
+                     value = value[0]
+                 elif ftype in ('date', 'datetime'):
++                    if ':week_sunday' in gb['groupby']:
++                        # postgres's date_trunc supports only weeks starting with Monday
++                        # So, make this hack to support weeks starting with Sunday
++                        value -= dateutil.relativedelta.relativedelta(days=1)
+                     locale = self._context.get('lang') or 'en_US'
+                     fmt = DEFAULT_SERVER_DATETIME_FORMAT if ftype == 'datetime' else DEFAULT_SERVER_DATE_FORMAT
+                     tzinfo = None
