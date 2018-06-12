@@ -1,0 +1,33 @@
+================================================================================
+
+The accounting subsidiary conceptualization rsurfaced this code relict, which 
+is an unecesary (and in the context of accounting subsidiary, harmful) proxy.
+
+Harmful, because in accounting subsisdiaries, the line can use accounts of 
+the "mother" company, so the respective user might have no read access on this 
+"mother" company.
+
+Anyway, in such a conctext, it is made sure by construction that the currency 
+of the mother company match the correncies of it's accounting childs.
+
+Unecesary, because without subsidiary, line.company_id does always 
+matchline.account_company_id
+
+================================================================================
+
+ addons/account/models/account_move.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/addons/account/models/account_move.py b/addons/account/models/account_move.py
+index d0543ec2ab2..c5e80e61e58 100644
+--- a/addons/account/models/account_move.py
++++ b/addons/account/models/account_move.py
+@@ -696,7 +696,7 @@ class AccountMoveLine(models.Model):
+             target_currency = self.env['res.currency'].browse(int(target_currency))
+ 
+         for line in self:
+-            company_currency = line.account_id.company_id.currency_id
++            company_currency = line.company_id.currency_id
+             ret_line = {
+                 'id': line.id,
+                 'name': line.name != '/' and line.move_id.name + ': ' + line.name or line.move_id.name,
