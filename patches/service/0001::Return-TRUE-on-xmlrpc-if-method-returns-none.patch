@@ -1,0 +1,21 @@
+======================================================================
+
+Return True on xmlrpc, when method returns none.
+
+======================================================================
+
+ odoo/service/model.py | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/odoo/service/model.py b/odoo/service/model.py
+index 244f57fdfb0..3412bf5c657 100644
+--- a/odoo/service/model.py
++++ b/odoo/service/model.py
+@@ -164,6 +164,7 @@ def execute(db, uid, obj, method, *args, **kw):
+         res = execute_cr(cr, uid, obj, method, *args, **kw)
+         if res is None:
+             _logger.info('The method %s of the object %s can not return `None` !', method, obj)
++            res = True
+         return res
+ 
+ def exec_workflow_cr(cr, uid, obj, signal, *args):
