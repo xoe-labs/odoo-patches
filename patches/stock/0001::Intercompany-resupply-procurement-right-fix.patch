@@ -1,0 +1,30 @@
+==============================================================================
+
+In intercompany procurements, the user might not have access to the
+metadata of the other company (eg. locations etc.), so he will fail to
+execute the procurement as the move confirmation will fail.
+
+Do the move confirmation in sudo() also, just as the move creation, btw. in
+order to fix this
+
+==============================================================================
+
+ addons/stock/models/procurement.py | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/addons/stock/models/procurement.py b/addons/stock/models/procurement.py
+index c7b5246e71a..ca4e79cba66 100644
+--- a/addons/stock/models/procurement.py
++++ b/addons/stock/models/procurement.py
+@@ -204,7 +204,10 @@ class ProcurementOrder(models.Model):
+             # (we do that in batch because it fasts the picking assignation and the picking state computation)
+             move_ids = new_self.filtered(lambda order: order.state == 'running' and order.rule_id.action == 'move').mapped('move_ids').filtered(lambda move: move.state == 'draft')
+             if move_ids:
+-                move_ids.action_confirm()
++                # Coimg form an intercompany manual resupply, the user might not have access on the metadata of
++                # the "other" move, such as locations, etc. So the confirmation needs to be done in sudo(), just as the
++                # very creation.
++                move_ids.sudo().action_confirm()
+ 
+             # TDE FIXME: action_confirm in stock_move already call run() ... necessary ??
+             # If procurements created other procurements, run the created in batch
