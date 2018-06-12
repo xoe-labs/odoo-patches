@@ -1,0 +1,30 @@
+=====================================================================================
+
+Delete duplicate and unnecessary code.
+
+    See upstream issue: https://github.com/odoo/odoo/issues/21654
+
+=====================================================================================
+
+ addons/purchase/models/purchase.py | 8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
+
+diff --git a/addons/purchase/models/purchase.py b/addons/purchase/models/purchase.py
+index 06d1247048a..6c9503c033d 100644
+--- a/addons/purchase/models/purchase.py
++++ b/addons/purchase/models/purchase.py
+@@ -775,13 +775,7 @@ class PurchaseOrderLine(models.Model):
+         if product_lang.description_purchase:
+             self.name += '\n' + product_lang.description_purchase
+ 
+-        fpos = self.order_id.fiscal_position_id
+-        if self.env.uid == SUPERUSER_ID:
+-            company_id = self.env.user.company_id
+-            self.taxes_id = fpos.map_tax(self.product_id.supplier_taxes_id.filtered(lambda r: r.company_id == company_id.accounting_company_id))
+-        else:
+-            self.taxes_id = fpos.map_tax(self.product_id.supplier_taxes_id)
+-
++        self._compute_tax_id()
+         self._suggest_quantity()
+         self._onchange_quantity()
+ 
