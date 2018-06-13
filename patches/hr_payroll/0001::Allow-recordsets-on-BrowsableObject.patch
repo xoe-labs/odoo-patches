@@ -1,0 +1,45 @@
+===========================================================
+
+If a payslip work_dyas or inputs line had several items
+with the same code, only the last item was preserved. 
+This resulted in silent, odd and unexpected behaviour.
+
+Now, RecordSets are passed along and the UserError has 
+been made more excplicit in order to (more generally) help 
+with debugging faulty python code.
+
+===========================================================
+
+ addons/hr_payroll/models/hr_payroll.py | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/addons/hr_payroll/models/hr_payroll.py b/addons/hr_payroll/models/hr_payroll.py
+index 8130afbd133..826d9bf5a99 100644
+--- a/addons/hr_payroll/models/hr_payroll.py
++++ b/addons/hr_payroll/models/hr_payroll.py
+@@ -474,10 +474,10 @@ class HrPayslip(models.Model):
+         inputs_dict = {}
+         blacklist = []
+         payslip = self.env['hr.payslip'].browse(payslip_id)
+-        for worked_days_line in payslip.worked_days_line_ids:
+-            worked_days_dict[worked_days_line.code] = worked_days_line
+-        for input_line in payslip.input_line_ids:
+-            inputs_dict[input_line.code] = input_line
++        for code in payslip.worked_days_line_ids.mapped('code'):
++            worked_days_dict[code] = payslip.worked_days_line_ids.filtered(lambda l: l.code == code)
++        for code in payslip.input_line_ids.mapped('code'):
++            inputs_dict[code] = payslip.input_line_ids.filtered(lambda l: l.code == code)
+ 
+         categories = BrowsableObject(payslip.employee_id.id, {}, self.env)
+         inputs = InputLine(payslip.employee_id.id, inputs_dict, self.env)
+@@ -798,8 +798,8 @@ class HrSalaryRule(models.Model):
+             try:
+                 safe_eval(self.amount_python_compute, localdict, mode='exec', nocopy=True)
+                 return float(localdict['result']), 'result_qty' in localdict and localdict['result_qty'] or 1.0, 'result_rate' in localdict and localdict['result_rate'] or 100.0
+-            except:
+-                raise UserError(_('Wrong python code defined for salary rule %s (%s).') % (self.name, self.code))
++            except Exception as e:
++                raise UserError(_('Faulty python code defined for salary rule %s (%s).\n\nException Message:\n\n%s') % (self.name, self.code, e.message))
+ 
+     @api.multi
+     def satisfy_condition(self, localdict):
