@@ -1,0 +1,174 @@
+=====================================================================
+
+In a multi point of sale setup, I probably will not have the same 
+offer on every point of sale.
+
+While limiting to the available products on the seved location would 
+be appealing it does not fit the make_to_order restaurant use case. 
+
+Limiting (optionally) certain product categories, however, can be 
+considered as safe.
+
+=====================================================================
+
+ addons/point_of_sale/models/pos_config.py      |  7 +++++++
+ addons/point_of_sale/static/src/js/db.js       | 12 +++++++++---
+ addons/point_of_sale/static/src/js/models.js   |  4 ++--
+ addons/point_of_sale/static/src/js/screens.js  | 13 ++++++++++++-
+ addons/point_of_sale/views/pos_config_view.xml |  9 ++++++++-
+ 5 files changed, 38 insertions(+), 7 deletions(-)
+
+diff --git a/addons/point_of_sale/models/pos_config.py b/addons/point_of_sale/models/pos_config.py
+index dac3f2f990b..eca6a715772 100644
+--- a/addons/point_of_sale/models/pos_config.py
++++ b/addons/point_of_sale/models/pos_config.py
+@@ -91,6 +91,8 @@ class PosConfig(models.Model):
+         help='The displayed prices will always include all taxes, even if the taxes have been setup differently')
+     iface_start_categ_id = fields.Many2one('pos.category', string='Start Category',
+         help='The point of sale will display this product category by default. If no category is specified, all available products will be shown')
++    iface_available_categ_ids = fields.Many2many('pos.category', string='Available Category Tree',
++        help='The point of sale will only display products which are within one of the selected category trees. If no category is specified, all available products will be shown')
+     iface_display_categ_images = fields.Boolean(string='Display Category Pictures',
+         help="The product categories will be displayed with pictures.")
+     cash_control = fields.Boolean(string='Cash Control', help="Check the amount of the cashbox at opening and closing.")
+@@ -199,6 +201,11 @@ class PosConfig(models.Model):
+         if self.picking_type_id.default_location_src_id.usage == 'internal' and self.picking_type_id.default_location_dest_id.usage == 'customer':
+             self.stock_location_id = self.picking_type_id.default_location_src_id.id
+ 
++    @api.onchange('iface_available_categ_ids')
++    def _onchange_iface_available_categ_ids(self):
++        if self.iface_start_categ_id not in self.iface_available_categ_ids:
++            self.iface_start_categ_id = False
++
+     @api.multi
+     def name_get(self):
+         result = []
+diff --git a/addons/point_of_sale/static/src/js/db.js b/addons/point_of_sale/static/src/js/db.js
+index 5ea5defa3f0..b71c6a30c6d 100644
+--- a/addons/point_of_sale/static/src/js/db.js
++++ b/addons/point_of_sale/static/src/js/db.js
+@@ -86,7 +86,7 @@ var PosDB = core.Class.extend({
+     /* adds categories definitions to the database. categories is a list of categories objects as
+      * returned by the openerp server. Categories must be inserted before the products or the
+      * product/ categories association may (will) not work properly */
+-    add_categories: function(categories){
++    add_categories: function(categories, available_categ_ids){
+         var self = this;
+         if(!this.category_by_id[this.root_category_id]){
+             this.category_by_id[this.root_category_id] = {
+@@ -95,12 +95,15 @@ var PosDB = core.Class.extend({
+             };
+         }
+         for(var i=0, len = categories.length; i < len; i++){
++            if (available_categ_ids.length && !available_categ_ids.includes(categories[i].id)){
++                categories[i].invisible = true;
++            }
+             this.category_by_id[categories[i].id] = categories[i];
+         }
+         len = categories.length;
+         for(i=0; i < len; i++){
+             var cat = categories[i];
+-            var parent_id = cat.parent_id[0] || this.root_category_id;
++            var parent_id = this.category_by_id[cat.parent_id[0]] ? cat.parent_id[0] : this.root_category_id;
+             this.category_parent[cat.id] = cat.parent_id[0];
+             if(!this.category_childs[parent_id]){
+                 this.category_childs[parent_id] = [];
+@@ -167,7 +170,7 @@ var PosDB = core.Class.extend({
+         str  = product.id + ':' + str.replace(/:/g,'') + '\n';
+         return str;
+     },
+-    add_products: function(products){
++    add_products: function(products, available_categ_ids){
+         var stored_categories = this.product_by_category_id;
+ 
+         if(!products instanceof Array){
+@@ -202,6 +205,9 @@ var PosDB = core.Class.extend({
+                 }
+                 this.category_search_string[ancestor] += search_string;
+             }
++            if (available_categ_ids.length && !available_categ_ids.includes(categ_id)){
++                product.invisible = true;
++            }
+             this.product_by_id[product.id] = product;
+             if(product.barcode){
+                 this.product_by_barcode[product.barcode] = product;
+diff --git a/addons/point_of_sale/static/src/js/models.js b/addons/point_of_sale/static/src/js/models.js
+index ecfed9d8618..4da9dcb0633 100644
+--- a/addons/point_of_sale/static/src/js/models.js
++++ b/addons/point_of_sale/static/src/js/models.js
+@@ -304,7 +304,7 @@ exports.PosModel = Backbone.Model.extend({
+         fields: ['id','name','parent_id','child_id','image'],
+         domain: null,
+         loaded: function(self, categories){
+-            self.db.add_categories(categories);
++            self.db.add_categories(categories, self.config.iface_available_categ_ids);
+         },
+     },{
+         model:  'product.product',
+@@ -315,7 +315,7 @@ exports.PosModel = Backbone.Model.extend({
+         domain: [['sale_ok','=',true],['available_in_pos','=',true]],
+         context: function(self){ return { pricelist: self.pricelist.id, display_default_code: false }; },
+         loaded: function(self, products){
+-            self.db.add_products(products);
++            self.db.add_products(products, self.config.iface_available_categ_ids);
+         },
+     },{
+         model:  'account.bank.statement',
+diff --git a/addons/point_of_sale/static/src/js/screens.js b/addons/point_of_sale/static/src/js/screens.js
+index e64e12ffd38..8a2ef5b574e 100644
+--- a/addons/point_of_sale/static/src/js/screens.js
++++ b/addons/point_of_sale/static/src/js/screens.js
+@@ -670,7 +670,13 @@ var ProductCategoriesWidget = PosBaseWidget.extend({
+         if(this.category.id !== db.root_category_id){
+             this.breadcrumb.push(this.category);
+         }
+-        this.subcategories = db.get_category_by_id(db.get_category_childs_ids(this.category.id));
++        var subcategories = db.get_category_by_id(db.get_category_childs_ids(this.category.id));
++        for (var i = subcategories.length - 1; i >= 0; i--){
++            if (subcategories[i].invisible){
++                subcategories.splice(i, 1);
++            }
++        }
++        this.subcategories = subcategories;
+     },
+ 
+     get_image_url: function(category){
+@@ -819,6 +825,11 @@ var ProductListWidget = PosBaseWidget.extend({
+         this.product_cache = new DomCache();
+     },
+     set_product_list: function(product_list){
++        for (var i = product_list.length - 1; i >= 0; i--){
++            if (product_list[i].invisible){
++                product_list.splice(i, 1);
++            }
++        }
+         this.product_list = product_list;
+         this.renderElement();
+     },
+diff --git a/addons/point_of_sale/views/pos_config_view.xml b/addons/point_of_sale/views/pos_config_view.xml
+index f94f7905cca..f083ea6cf31 100644
+--- a/addons/point_of_sale/views/pos_config_view.xml
++++ b/addons/point_of_sale/views/pos_config_view.xml
+@@ -36,7 +36,7 @@
+                             <field name="iface_vkeyboard" />
+                             <field name="iface_invoicing" />
+                             <field name="iface_precompute_cash" />
+-                            <field name="iface_start_categ_id" />
++                            <field name="iface_start_categ_id" domain="[iface_available_categ_ids and ('id', '=', iface_available_categ_ids[0][2]) or (1, '=', 1)]"/>
+                             <field name="tip_product_id" />
+                             <field name="iface_tax_included" />
+                         </group>
+@@ -47,6 +47,13 @@
+                             <field name="iface_print_skip_screen"  attrs="{'invisible' : [('iface_print_auto', '=', False)]}" />
+                         </group>
+                     </group>
++                    <group name="categories" string="Available Categories" >
++                        <field name="iface_available_categ_ids">
++                            <tree>
++                                <field name="display_name"/>
++                            </tree>
++                        </field>
++                    </group>
+                     <group string="Hardware Proxy / PosBox" >
+                         <field name="proxy_ip" />
+                         <field name="iface_print_via_proxy" string="Receipt Printer"/>
