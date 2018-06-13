@@ -1,0 +1,26 @@
+=======================================================
+
+For some inexplicable reason the product_id was not 
+passed to the aml on account vouchers. THis had adverse 
+impact on the ability to use products for analysis or 
+reporting. This is also contrary to the standard 
+behaviour on normal invoices and other accounting 
+documents.
+
+=======================================================
+
+ addons/account_voucher/models/account_voucher.py | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/addons/account_voucher/models/account_voucher.py b/addons/account_voucher/models/account_voucher.py
+index 66d6c6f07eb..288feadecb7 100644
+--- a/addons/account_voucher/models/account_voucher.py
++++ b/addons/account_voucher/models/account_voucher.py
+@@ -295,6 +295,7 @@ class AccountVoucher(models.Model):
+                 'journal_id': self.journal_id.id,
+                 'name': line.name or '/',
+                 'account_id': line.account_id.id,
++                'product_id': line.product_id.id,
+                 'move_id': move_id,
+                 'partner_id': self.partner_id.commercial_partner_id.id,
+                 'analytic_account_id': line.account_analytic_id and line.account_analytic_id.id or False,
