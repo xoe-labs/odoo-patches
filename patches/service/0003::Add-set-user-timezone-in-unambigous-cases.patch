@@ -1,0 +1,36 @@
+======================================================
+
+When the company's country has only onw time zone it 
+is more often than not true, that the users of this 
+database will also use the single timezone of the main 
+company.
+
+======================================================
+
+
+ odoo/service/db.py | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/odoo/service/db.py b/odoo/service/db.py
+index cb8e4e6ef3d..a3ede358810 100644
+--- a/odoo/service/db.py
++++ b/odoo/service/db.py
+@@ -10,6 +10,7 @@ import traceback
+ import xml.etree.ElementTree as ET
+ import zipfile
+ 
++from pytz import country_timezones
+ from functools import wraps
+ from contextlib import closing
+ 
+@@ -59,6 +60,10 @@ def _initialize_db(id, db_name, demo, lang, user_password, login='admin', countr
+                 countries = env['res.country'].search([('code', 'ilike', country_code)])
+                 if countries:
+                     env['res.company'].browse(1).country_id = countries[0]
++                if len(country_timezones[country_code]) == 1:
++                    users = env['res.users'].search(['|', ('active','=', True), ('active','=', False)])
++                    users.write({'tz': country_timezones[country_code][0]})
++
+ 
+             # update admin's password and lang and login
+             values = {'password': user_password, 'lang': lang}
