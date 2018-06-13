@@ -1,0 +1,52 @@
+========================================================
+
+In the case of scripted instance creation, it is rather
+probable that you already have some information about
+the company.
+
+This information pre set translates in valuable 
+onboarding experience for the client.
+
+========================================================
+
+ odoo/service/db.py | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
+
+diff --git a/odoo/service/db.py b/odoo/service/db.py
+index a3ede358810..118500cb495 100644
+--- a/odoo/service/db.py
++++ b/odoo/service/db.py
+@@ -38,7 +38,7 @@ def check_super(passwd):
+     raise odoo.exceptions.AccessDenied()
+ 
+ # This should be moved to odoo.modules.db, along side initialize().
+-def _initialize_db(id, db_name, demo, lang, user_password, login='admin', country_code=None):
++def _initialize_db(id, db_name, demo, lang, user_password, login='admin', country_code=None, company_dict=None):
+     try:
+         db = odoo.sql_db.db_connect(db_name)
+         with closing(db.cursor()) as cr:
+@@ -64,6 +64,8 @@ def _initialize_db(id, db_name, demo, lang, user_password, login='admin', countr
+                     users = env['res.users'].search(['|', ('active','=', True), ('active','=', False)])
+                     users.write({'tz': country_timezones[country_code][0]})
+ 
++            if company_dict:
++                env['res.company'].browse(1).write(company_dict)
+ 
+             # update admin's password and lang and login
+             values = {'password': user_password, 'lang': lang}
+@@ -91,11 +93,13 @@ def _create_empty_database(name):
+             cr.autocommit(True)     # avoid transaction block
+             cr.execute("""CREATE DATABASE "%s" ENCODING 'unicode' TEMPLATE "%s" """ % (name, chosen_template))
+ 
+-def exp_create_database(db_name, demo, lang, user_password='admin', login='admin', country_code=None):
++def exp_create_database(db_name, demo, lang, user_password='admin', login='admin', country_code=None, company_dict=None):
+     """ Similar to exp_create but blocking."""
+     _logger.info('Create database `%s`.', db_name)
+     _create_empty_database(db_name)
+-    _initialize_db(id, db_name, demo, lang, user_password, login, country_code)
++    if company_dict:
++        company_dict = json.loads(company_dict)
++    _initialize_db(id, db_name, demo, lang, user_password, login, country_code, company_dict)
+     return True
+ 
+ def exp_duplicate_database(db_original_name, db_name):
