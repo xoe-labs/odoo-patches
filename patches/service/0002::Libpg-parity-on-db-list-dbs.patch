@@ -1,0 +1,22 @@
+=====================================================
+
+libpg parity on db.list_dbs()
+
+=====================================================
+
+ odoo/service/db.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/odoo/service/db.py b/odoo/service/db.py
+index f443ddfc984..cb8e4e6ef3d 100644
+--- a/odoo/service/db.py
++++ b/odoo/service/db.py
+@@ -348,7 +348,7 @@ def list_dbs(force=False):
+             db_user = odoo.tools.config["db_user"]
+             if not db_user and os.name == 'posix':
+                 import pwd
+-                db_user = pwd.getpwuid(os.getuid())[0]
++                db_user = os.environ.get('PGUSER', pwd.getpwuid(os.getuid())[0])
+             if not db_user:
+                 cr.execute("select usename from pg_user where usesysid=(select datdba from pg_database where datname=%s)", (odoo.tools.config["db_name"],))
+                 res = cr.fetchone()
