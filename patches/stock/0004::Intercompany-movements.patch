@@ -1,0 +1,115 @@
+========================================================================================
+
+No intercompany transaction where possible when the moves have been chained via a rule.
+    
+The reason is that one user might need access to move, picking and procurement models 
+based on the link they have between them.
+    
+Also the user needs access to the quant from the intercompany location, even if this 
+quant is owned by the other company (fixed in v11 / company on quants is a related 
+field of location)
+
+========================================================================================
+
+ addons/stock/models/stock_move.py        | 8 +++++++-
+ addons/stock/models/stock_picking.py     | 4 ++--
+ addons/stock/models/stock_quant.py       | 5 ++++-
+ addons/stock/security/stock_security.xml | 6 +++---
+ 4 files changed, 16 insertions(+), 7 deletions(-)
+
+diff --git a/addons/stock/models/stock_move.py b/addons/stock/models/stock_move.py
+index 2ba8fadba58..059af7be965 100644
+--- a/addons/stock/models/stock_move.py
++++ b/addons/stock/models/stock_move.py
+@@ -921,10 +921,16 @@ class StockMove(models.Model):
+ 
+         # set the move as done
+         self.write({'state': 'done', 'date': time.strftime(DEFAULT_SERVER_DATETIME_FORMAT)})
+-        procurements.check()
++        # In intercompany moves, we have possibly no access to the procurement, hence sudo
++        procurements.sudo().check()
+         # assign destination moves
+         if move_dest_ids:
+             # TDE FIXME: record setise me
++            if u'transit' in self.mapped('location_dest_id.usage'):
++                # In an intercompany move we do want to reserve on the other end (as superuser)
++                self.browse(list(move_dest_ids)).sudo().action_assign()
++            else:
++                # But preserve the user on normal moves
+                 self.browse(list(move_dest_ids)).action_assign()
+ 
+         pickings.filtered(lambda picking: picking.state == 'done' and not picking.date_done).write({'date_done': time.strftime(DEFAULT_SERVER_DATETIME_FORMAT)})
+diff --git a/addons/stock/models/stock_picking.py b/addons/stock/models/stock_picking.py
+index e2337b48ba3..14525fdd81a 100644
+--- a/addons/stock/models/stock_picking.py
++++ b/addons/stock/models/stock_picking.py
+@@ -211,12 +211,12 @@ class Picking(models.Model):
+         help="Priority for this picking. Setting manually a value here would set it as priority for all the moves")
+     min_date = fields.Datetime(
+         'Scheduled Date', compute='_compute_dates', inverse='_set_min_date', store=True,
+-        index=True, track_visibility='onchange',
++        index=True, track_visibility='onchange', compute_sudo=True,
+         states={'done': [('readonly', True)], 'cancel': [('readonly', True)]},
+         help="Scheduled time for the first part of the shipment to be processed. Setting manually a value here would set it as expected date for all the stock moves.")
+     max_date = fields.Datetime(
+         'Max. Expected Date', compute='_compute_dates', store=True,
+-        index=True,
++        index=True, compute_sudo=True,
+         help="Scheduled time for the last part of the shipment to be processed")
+     date = fields.Datetime(
+         'Creation Date',
+diff --git a/addons/stock/models/stock_quant.py b/addons/stock/models/stock_quant.py
+index 6006d35449f..9c3996e0900 100644
+--- a/addons/stock/models/stock_quant.py
++++ b/addons/stock/models/stock_quant.py
+@@ -281,6 +281,7 @@ class Quant(models.Model):
+     def _quant_update_from_move(self, move, location_dest_id, dest_package_id, lot_id=False, entire_pack=False):
+         vals = {
+             'location_id': location_dest_id.id,
++            'company_id': move.company_id.id,
+             'history_ids': [(4, move.id)],
+             'reservation_id': False}
+         if lot_id and any(quant for quant in self if not quant.lot_id.id):
+@@ -470,9 +471,11 @@ class Quant(models.Model):
+             domain += [('location_id', 'child_of', move.location_id.id)]
+             if move.restrict_partner_id:
+                 domain += [('owner_id', '=', move.restrict_partner_id.id)]
+-
++            ancestors = move.find_move_ancestors() | move.origin_returned_move_id
+             if company_id:
+                 domain += [('company_id', '=', company_id)]
++            elif ancestors:
++                domain += [('company_id', 'in', ancestors.mapped('company_id').ids)]
+             else:
+                 domain += [('company_id', '=', move.company_id.id)]
+ 
+diff --git a/addons/stock/security/stock_security.xml b/addons/stock/security/stock_security.xml
+index 4e4f39b0ac8..5ea794a473f 100644
+--- a/addons/stock/security/stock_security.xml
++++ b/addons/stock/security/stock_security.xml
+@@ -59,7 +59,7 @@
+         <field name="name">stock_picking multi-company</field>
+         <field name="model_id" search="[('model','=','stock.picking')]" model="ir.model"/>
+         <field name="global" eval="True"/>
+-        <field name="domain_force">['|',('company_id','=',False),('company_id','child_of',[user.company_id.id])]</field>
++        <field name="domain_force">['|','|',('company_id','=',False),('company_id','child_of',[user.company_id.id]),('move_lines.move_orig_ids.company_id', 'child_of',[user.company_id.id])]</field>
+     </record>
+ 
+     <record model="ir.rule" id="stock_picking_type_rule">
+@@ -89,14 +89,14 @@
+          <field name="name">stock_move multi-company</field>
+         <field name="model_id" search="[('model','=','stock.move')]" model="ir.model"/>
+         <field name="global" eval="True"/>
+-        <field name="domain_force">['|',('company_id','=',False),('company_id','child_of',[user.company_id.id])]</field>
++        <field name="domain_force">['|', '|', '|', ('company_id','=',False), ('company_id','child_of',[user.company_id.id]), ('move_dest_id.company_id','child_of',[user.company_id.id]), ('move_orig_ids.company_id','child_of',[user.company_id.id])]</field>
+      </record>
+ 
+     <record model="ir.rule" id="stock_quant_rule">
+         <field name="name">stock_quant multi-company</field>
+         <field name="model_id" ref="model_stock_quant"/>
+         <field name="global" eval="True"/>
+-        <field name="domain_force">['|',('company_id','=',False),('company_id','child_of',[user.company_id.id])]</field>
++        <field name="domain_force">['|',('location_id.company_id','=',False),('location_id.company_id','child_of',[user.company_id.id])]</field>
+     </record>
+ 
+     <record model="ir.rule" id="stock_inventory_line_comp_rule">
